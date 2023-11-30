@@ -54,6 +54,21 @@ inline int setlinebuf(FILE* stream) { return setvbuf(stream, (char*)0, _IONBF, 0
 
 #endif
 
+#ifdef __EMSCRIPTEN__
+extern "C" {
+const char* EMSCRIPTEN_KEEPALIVE version() {
+  return SC_VersionString().c_str();
+}
+}
+#endif
+
+// Code for starting int steps
+
+struct World* world;
+
+WorldOptions options;
+
+
 void Usage();
 void Usage() {
     WorldOptions defaultOptions;
@@ -171,8 +186,6 @@ int scsynth_main(int argc, char** argv) {
     int udpPortNum = -1;
     int tcpPortNum = -1;
     std::string bindTo("127.0.0.1");
-
-    WorldOptions options;
 
 #ifdef SC_BELA
     // defaults
@@ -422,7 +435,7 @@ int scsynth_main(int argc, char** argv) {
     } else
         options.mSharedMemoryID = 0;
 
-    struct World* world = World_New(&options);
+    world = World_New(&options);
     if (!world)
         return 1;
 
