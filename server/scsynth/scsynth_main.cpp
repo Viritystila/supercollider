@@ -66,12 +66,80 @@ const char* EMSCRIPTEN_KEEPALIVE version() {
 
 struct World* world;
 
+WorldOptions defaultOptions;
+
 WorldOptions options;
+
+int udpPortNumber = -1;
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+void EMSCRIPTEN_KEEPALIVE setOptions(int mNumControlBusChannels = defaultOptions.mNumControlBusChannels, 
+             int mNumAudioBusChannels = defaultOptions.mNumAudioBusChannels,
+             int mNumInputBusChannels = defaultOptions.mNumInputBusChannels, 
+             int mNumOutputBusChannels = defaultOptions.mNumOutputBusChannels, 
+             int mBufLength = defaultOptions.mBufLength,
+             int mPreferredHardwareBufferFrameSize = defaultOptions.mPreferredHardwareBufferFrameSize, 
+             int mPreferredSampleRate = defaultOptions.mPreferredSampleRate,
+             int mNumBuffers = defaultOptions.mNumBuffers, 
+             int mMaxNodes = defaultOptions.mMaxNodes, 
+             int mMaxGraphDefs = defaultOptions.mMaxGraphDefs,
+             int mRealTimeMemorySize  = defaultOptions.mRealTimeMemorySize, 
+             int mMaxWireBufs = defaultOptions.mMaxWireBufs, 
+             int mNumRGens = defaultOptions.mNumRGens,
+             int mRendezvous = defaultOptions.mRendezvous, 
+             int mLoadGraphDefs = defaultOptions.mLoadGraphDefs, 
+             int mMaxLogins = defaultOptions.mMaxLogins,
+             int udpPortNum = -1) {
+            
+            udpPortNumber=udpPortNum;
+            options.mNumControlBusChannels = mNumControlBusChannels;
+            options.mNumAudioBusChannels = mNumAudioBusChannels;
+            options.mNumInputBusChannels = mNumInputBusChannels; 
+            options.mNumOutputBusChannels = mNumOutputBusChannels;
+            options.mBufLength = mBufLength;
+            options.mPreferredHardwareBufferFrameSize = mPreferredHardwareBufferFrameSize; 
+            options.mPreferredSampleRate = mPreferredSampleRate;
+            options.mNumBuffers = mNumBuffers;
+            options.mMaxNodes = mMaxNodes; 
+            options.mMaxGraphDefs = mMaxGraphDefs;
+            options.mRealTimeMemorySize = mRealTimeMemorySize; 
+            options.mMaxWireBufs = mMaxWireBufs; 
+            options.mNumRGens = mNumRGens;
+            options.mRendezvous = mRendezvous; 
+            options.mLoadGraphDefs = mLoadGraphDefs; 
+            options.mMaxLogins = mMaxLogins; 
+}
+}
+#endif
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+void EMSCRIPTEN_KEEPALIVE newWorld() {
+      world = World_New(&options);
+}
+}
+#endif
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+int EMSCRIPTEN_KEEPALIVE openWebConnection() {
+    std::string bindTo("127.0.0.1");
+    if (!World_OpenWeb(world, bindTo.c_str(), udpPortNumber)) {
+         World_Cleanup(world, true);
+        return 1;
+    }
+    else {
+        return 0;
+    }
+    }
+}
+#endif
 
 
 void Usage();
 void Usage() {
-    WorldOptions defaultOptions;
+    //WorldOptions defaultOptions;
 
     scprintf("supercollider_synth  options:\n"
              "   -v print the supercollider version and exit\n"
