@@ -455,10 +455,17 @@ int scsynth_main(int argc, char** argv) {
     }
 
     if (udpPortNum >= 0) {
+        #ifdef __EMSCRIPTEN__
+        if (!World_OpenWeb(world, bindTo.c_str(), udpPortNum)) {
+            World_Cleanup(world, true);
+            return 1;
+        }
+        #else
         if (!World_OpenUDP(world, bindTo.c_str(), udpPortNum)) {
             World_Cleanup(world, true);
             return 1;
         }
+        #endif
     }
     if (tcpPortNum >= 0) {
         if (!World_OpenTCP(world, bindTo.c_str(), tcpPortNum, options.mMaxLogins, 8)) {

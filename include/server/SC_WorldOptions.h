@@ -122,4 +122,6 @@ SCSYNTH_DLLEXPORT_C int World_CopySndBuf(struct World* world, uint32 index, stru
 SCSYNTH_DLLEXPORT_C int scprintf(const char* fmt, ...);
 #ifdef __EMSCRIPTEN__
 SCSYNTH_DLLEXPORT_C int World_bufAlloc(struct World* world, int numChannels, int numFrames, int bufIndex);
+SCSYNTH_DLLEXPORT_C int World_OpenWeb(struct World* inWorld, const char* bindTo, int inPort);
 #endif
+

@@ -696,6 +696,14 @@ SCSYNTH_DLLEXPORT_C int World_OpenUDP(struct World* inWorld, const char* bindTo,
 #endif
 }
 
+#ifdef __EMSCRIPTEN__
+SCSYNTH_DLLEXPORT_C int World_OpenWeb(struct World* inWorld, const char* bindTo, int inPort) {
+    // when running in the browser, a special 'web' protocol is used in place of 'udp'.
+    // that way scsynth can be started as usual with the '-u' switch
+    return protectedOpenPort<SC_WebInPort>("Web", inWorld, bindTo, inPort);
+}
+#endif
+
 SCSYNTH_DLLEXPORT_C int World_OpenTCP(struct World* inWorld, const char* bindTo, int inPort, int inMaxConnections,
                                       int inBacklog) {
     return protectedOpenPort<SC_TcpInPort>("TCP", inWorld, bindTo, inPort, inMaxConnections, inBacklog);
