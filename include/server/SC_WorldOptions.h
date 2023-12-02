@@ -29,6 +29,9 @@
 #include "SC_Reply.h"
 #include "SC_Types.h"
 #include "SC_Export.h"
+#ifdef __EMSCRIPTEN__
+#    include <emscripten.h>
+#endif
 
 typedef int (*PrintFunc)(const char* format, va_list ap);
 
@@ -117,3 +120,6 @@ SCSYNTH_DLLEXPORT_C bool World_SendPacketWithContext(struct World* inWorld, int 
 SCSYNTH_DLLEXPORT_C int World_CopySndBuf(struct World* world, uint32 index, struct SndBuf* outBuf, bool onlyIfChanged,
                                          bool* didChange);
 SCSYNTH_DLLEXPORT_C int scprintf(const char* fmt, ...);
+#ifdef __EMSCRIPTEN__
+SCSYNTH_DLLEXPORT_C int World_bufAlloc(struct World* world, int numChannels, int numFrames, int bufIndex);
+#endif

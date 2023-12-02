@@ -76,7 +76,9 @@
 #include "server_shm.hpp"
 
 #include <boost/filesystem/path.hpp> // path
-
+#ifdef __EMSCRIPTEN__
+#    include <emscripten.h>
+#endif
 namespace bfs = boost::filesystem;
 
 InterfaceTable gInterfaceTable;
@@ -1065,6 +1067,43 @@ SCErr bufAlloc(SndBuf* buf, int numChannels, int numFrames, double sampleRate) {
 
     return kSCErr_None;
 }
+
+#ifdef __EMSCRIPTEN__
+int World_bufAlloc(World* inWorld,  int numChannels, int numFrames, int bufIndex) {
+    SndBuf mSndBuf;
+    float* mFreeData;
+    int index=bufIndex;
+    double sampleRate=inWorld->mFullRate.mSampleRate; 
+    if (index > inWorld->mNumSndBufs)
+        index = kSCErr_Failed;
+    SndBuf* buf = inWorld->mSndBufsNonRealTimeMirror + index;
+    mFreeData = buf->data;
+    mSndBuf = *buf;
+    long numSamples = numFrames * numChannels;
+    if (numSamples < 1)
+        return kSCErr_Failed;
+    buf->data = (float*)zalloc(numSamples, sizeof(float));
+    if (!buf->data)
+        return kSCErr_Failed;
+    buf->channels = numChannels;
+    buf->frames = numFrames;
+    buf->samples = numSamples;
+    buf->mask = BUFMASK(numSamples); // for delay lines
+    buf->mask1 = buf->mask - 1; // for oscillators
+    buf->samplerate = sampleRate;
+    buf->sampledur = 1. / sampleRate;
+    mSndBuf = *buf;
+    if (index > inWorld->mNumSndBufs)
+        index = kSCErr_Failed;
+    buf = inWorld->mSndBufs + index;
+    *buf = mSndBuf;
+    inWorld->mSndBufUpdates[index].writes++;
+
+    zfree(mFreeData);
+
+    return (int)kSCErr_None;
+}
+#endif
 
 #include "scsynthsend.h"
 
