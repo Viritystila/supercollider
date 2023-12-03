@@ -74,25 +74,27 @@ int udpPortNumber = -1;
 
 #ifdef __EMSCRIPTEN__
 extern "C" {
-void EMSCRIPTEN_KEEPALIVE setOptions(int mNumControlBusChannels = defaultOptions.mNumControlBusChannels, 
-             int mNumAudioBusChannels = defaultOptions.mNumAudioBusChannels,
-             int mNumInputBusChannels = defaultOptions.mNumInputBusChannels, 
-             int mNumOutputBusChannels = defaultOptions.mNumOutputBusChannels, 
-             int mBufLength = defaultOptions.mBufLength,
-             int mPreferredHardwareBufferFrameSize = defaultOptions.mPreferredHardwareBufferFrameSize, 
-             int mPreferredSampleRate = defaultOptions.mPreferredSampleRate,
-             int mNumBuffers = defaultOptions.mNumBuffers, 
-             int mMaxNodes = defaultOptions.mMaxNodes, 
-             int mMaxGraphDefs = defaultOptions.mMaxGraphDefs,
-             int mRealTimeMemorySize  = defaultOptions.mRealTimeMemorySize, 
-             int mMaxWireBufs = defaultOptions.mMaxWireBufs, 
-             int mNumRGens = defaultOptions.mNumRGens,
-             int mRendezvous = defaultOptions.mRendezvous, 
-             int mLoadGraphDefs = defaultOptions.mLoadGraphDefs, 
-             int mMaxLogins = defaultOptions.mMaxLogins,
-             int udpPortNum = -1) {
+void EMSCRIPTEN_KEEPALIVE setOptions(int udpPortNum = 57110,
+            bool mRealTime = true,
+            int mNumControlBusChannels =4096, 
+            int mNumAudioBusChannels = 512,
+            int mNumInputBusChannels = 2, 
+            int mNumOutputBusChannels = 2, 
+            int mBufLength = defaultOptions.mBufLength,
+            int mPreferredHardwareBufferFrameSize = defaultOptions.mPreferredHardwareBufferFrameSize, 
+            int mPreferredSampleRate = defaultOptions.mPreferredSampleRate,
+            int mNumBuffers = 1024, 
+            int mMaxNodes = 1024, 
+            int mMaxGraphDefs = 1024,
+            int mRealTimeMemorySize  = defaultOptions.mRealTimeMemorySize, 
+            int mMaxWireBufs = 64, 
+            int mNumRGens = defaultOptions.mNumRGens,
+            int mRendezvous = defaultOptions.mRendezvous, 
+            int mLoadGraphDefs = 0, 
+            int mMaxLogins = defaultOptions.mMaxLogins) {
             
             udpPortNumber=udpPortNum;
+            options.mRealTime=mRealTime;
             options.mNumControlBusChannels = mNumControlBusChannels;
             options.mNumAudioBusChannels = mNumAudioBusChannels;
             options.mNumInputBusChannels = mNumInputBusChannels; 
@@ -108,10 +110,19 @@ void EMSCRIPTEN_KEEPALIVE setOptions(int mNumControlBusChannels = defaultOptions
             options.mNumRGens = mNumRGens;
             options.mRendezvous = mRendezvous; 
             options.mLoadGraphDefs = mLoadGraphDefs; 
-            options.mMaxLogins = mMaxLogins; 
+            options.mMaxLogins = mMaxLogins;
 }
 }
 #endif
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+void EMSCRIPTEN_KEEPALIVE setDefaultOptions() {
+      setOptions();
+}
+}
+#endif
+
 
 #ifdef __EMSCRIPTEN__
 extern "C" {
@@ -136,6 +147,17 @@ int EMSCRIPTEN_KEEPALIVE openWebConnection() {
 }
 #endif
 
+#ifdef __EMSCRIPTEN__
+extern "C" {
+int  EMSCRIPTEN_KEEPALIVE wasm_main() {
+      setDefaultOptions();
+      newWorld();
+      openWebConnection();
+      scprintf("SuperCollider 3 server ready. Started via wasm_main\n");
+      return 0;
+}
+}
+#endif
 
 void Usage();
 void Usage() {
@@ -605,6 +627,12 @@ int wmain(int argc, wchar_t** wargv) {
 
 #else
 
-int main(int argc, char** argv) { return scsynth_main(argc, argv); };
+int main(int argc, char** argv) { 
+    #ifdef __EMSCRIPTEN__
+        return wasm_main();
+    #else 
+        return scsynth_main(argc, argv); 
+    #endif
+    };
 
 #endif //_WIN32
