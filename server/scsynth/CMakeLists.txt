@@ -293,7 +293,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
 	target_link_libraries(libscsynth rt)
 endif()
 if (EMSCRIPTEN)
-	set(CMAKE_EXECUTABLE_SUFFIX ".html")
+	set(CMAKE_EXECUTABLE_SUFFIX ".mjs")
 endif()
 
 add_executable(scsynth
@@ -311,7 +311,7 @@ endif()
  
 if (EMSCRIPTEN)
 	set_target_properties(libscsynth boost_system_lib boost_filesystem_lib PROPERTIES LINK_FLAGS "-s USE_PTHREADS=1 -s WASM=1 -pthread -s DISABLE_EXCEPTION_CATCHING=0  -s EXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\"]")
-	set_target_properties(scsynth PROPERTIES LINK_FLAGS "-s USE_PTHREADS=1 -s WASM=1 -pthread --bind -s DISABLE_EXCEPTION_CATCHING=0 -s EXPORT_ES6=1 -s MODULARIZE=1  -s INITIAL_MEMORY=67108864 -s EXPORTED_FUNCTIONS=[\"_malloc\",\"_main\",\"_version\"] -s EXPORTED_RUNTIME_METHODS=[\"ccall\",\"callMain\",\"cwrap\",\"UTF8ToString\"] --pre-js ${CMAKE_SOURCE_DIR}/wasm/pre.js")
+	set_target_properties(scsynth PROPERTIES LINK_FLAGS "-s USE_PTHREADS=1 -s WASM=1 -pthread --bind -s DISABLE_EXCEPTION_CATCHING=0 -s USE_ES6_IMPORT_META=0 -s EXPORT_NAME=SCModule -s MODULARIZE=1 -s ENVIRONMENT=web,worker -s INITIAL_MEMORY=67108864 -s EXPORTED_FUNCTIONS=[\"_malloc\",\"_main\",\"_version\"] -s EXPORTED_RUNTIME_METHODS=[\"ccall\",\"callMain\",\"cwrap\",\"UTF8ToString\"] --pre-js ${CMAKE_SOURCE_DIR}/wasm/pre.js")
 	set_property(TARGET scsynth libscsynth
 							 APPEND PROPERTY COMPILE_FLAGS "-pthread -DSTATIC_PLUGINS")
 endif()
