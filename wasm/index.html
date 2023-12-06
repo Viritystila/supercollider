@@ -59,14 +59,14 @@
         var bootEl    = document.getElementById('boot');
         var numInEl   = document.getElementById('num-inputs');
         var numOutEl  = document.getElementById('num-outputs');
-        var args      = Module['arguments'];
-        if (numInEl) {
-          args[args.indexOf('-i') + 1] = numInEl.value;
-        }
-        if (numOutEl) {
-          args[args.indexOf('-o') + 1] = numOutEl.value;
-        }
-        Module.callMain(args);
+        //var args      = Module['arguments'];
+        //if (numInEl) {
+        //  args[args.indexOf('-i') + 1] = numInEl.value;
+        //}
+        //if (numOutEl) {
+        //  args[args.indexOf('-o') + 1] = numOutEl.value;
+        //}
+        //Module.callMain();
         if (bootEl  ) bootEl  .disabled = true;
         if (numInEl ) numInEl .disabled = true;
         if (numOutEl) numOutEl.disabled = true;
@@ -146,16 +146,18 @@
     </style>
   </head>
   <body>
-    <div class="emscripten" id="status">Downloading...</div>
+   <!--  <div class="emscripten" id="status">Downloading...</div>-->
 
     <span id='controls'>
-      <input type="button" id="boot" disabled="disabled" value="Boot" onclick="boot();">
+      <input type="button" id="boot" value="Boot">
       Inputs:
       <input type="number" id="num-inputs"  value="0" min="0" max="2" step="1">
       Outputs:
       <input type="number" id="num-outputs" value="2" min="0" max="2" step="1">
     </span>
 
+
+<!-- 
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
@@ -163,7 +165,9 @@
     
     <textarea id="output" rows="8"></textarea>
 
-    <script type='text/javascript'>
+<script type='text/javascript'>
+
+</script>  <script type='text/javascript'>
       var statusElement   = document.getElementById('status');
       var progressElement = document.getElementById('progress');
       var bootElement     = document.getElementById('boot');
@@ -233,8 +237,85 @@
           if (text) Module.printErr('[post-exception status] ' + text);
         };
       };
-    </script>
-    <script async type="text/javascript" src="scsynth.js"></script>
+    </script> -->
+<!--     <script>
+            var bootElement     = document.getElementById('boot');
+
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          //var element = document.getElementById('output');
+          //cif (element) element.value = ''; // clear browser cache
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+            //if (element) {
+            //  element.value += text + "\n";
+            //  element.scrollTop = element.scrollHeight; // focus on bottom
+            //}
+          };
+        })(),
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          console.error(text);
+        },
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        },
+        onRuntimeInitialized: function() {
+          //bootElement.disabled = false;
+          Module.print("For sound examples, after booting open the console (ctrl-shift-J in Chrome)."); 
+          Module.print("Try d_bubbles() followed by s_bubbles()."); 
+          Module.print("When using microphone (Inputs = 2), try d_pitch() followed by s_pitch().");
+          Module.print("cmdPeriod() to free");
+        }
+      } 
+    </script> -->
+    <script type="module" async>
+
+      import { Module, init} from "./sc_wasm.js";
+      
+      
+      //module.greet = greet;
+      //var inn = await initModule(Module);
+
+      async function boot2() {
+        var bootEl    = document.getElementById('boot');
+        var numInEl   = document.getElementById('num-inputs');
+        var numOutEl  = document.getElementById('num-outputs');
+        //var args      = Module['arguments'];
+        //if (numInEl) {
+        //  args[args.indexOf('-i') + 1] = numInEl.value;
+        //}
+        //if (numOutEl) {
+        //  args[args.indexOf('-o') + 1] = numOutEl.value;
+        //}
+        //Module.callMain();
+        await init();
+        console.log(Module.UTF8ToString(Module._version()));
+        if (bootEl  ) bootEl  .disabled = true;
+        if (numInEl ) numInEl .disabled = true;
+        if (numOutEl) numOutEl.disabled = true;
+      }
+      document.getElementById('boot').addEventListener('click', boot2); 
+      </script>
   </body>
 </html>
 

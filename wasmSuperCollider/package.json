@@ -1,0 +1,15 @@
+{
+  "name": "scsynth",
+  "version": "1.0.0",
+  "description": "WASM SuperCollider",
+  "main": "sc_wasm.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "M. Reponen",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "browserify": "^17.0.0"
+  }
+}
