@@ -1,4 +1,5 @@
-import moduleInit from "./scsynth.mjs";
+import SCModule from"./scsynth.mjs";
+
 //import initModule from "./scsynth.js";
 //const foo = require("./scsynth.js");
 
@@ -52,9 +53,10 @@ var Module = {
   var Md;
 
 async function init(){
-  Md = await moduleInit(Module);
+    Md= await SCModule(Module);
 }
 
-export { Module, init };
+
+export { Module, init};
 
 

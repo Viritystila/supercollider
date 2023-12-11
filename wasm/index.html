@@ -338,13 +338,15 @@
         //  args[args.indexOf('-o') + 1] = numOutEl.value;
         //}
         //Module.callMain();
-        await init();
+        console.log(Module);
+        init();
         Module.callMain();
+        console.log(Module);
         console.log(Module.UTF8ToString(Module._version()));
         if (bootEl  ) bootEl  .disabled = true;
         if (numInEl ) numInEl .disabled = true;
         if (numOutEl) numOutEl.disabled = true;
-        //console.log(Module);
+        console.log(Module);
 
       }
 

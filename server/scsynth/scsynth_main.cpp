@@ -116,9 +116,16 @@ void EMSCRIPTEN_KEEPALIVE setOptions(int udpPortNum = 57110,
 #endif
 
 #ifdef __EMSCRIPTEN__
+void em_loop() {
+    // scprintf("<loop>\n");
+}
+#endif
+
+#ifdef __EMSCRIPTEN__
 extern "C" {
 void EMSCRIPTEN_KEEPALIVE setDefaultOptions() {
-      setOptions();
+
+    setOptions();
 }
 }
 #endif
@@ -127,7 +134,7 @@ void EMSCRIPTEN_KEEPALIVE setDefaultOptions() {
 #ifdef __EMSCRIPTEN__
 extern "C" {
 void EMSCRIPTEN_KEEPALIVE newWorld() {
-      world = World_New(&options);
+    world = World_New(&options);
 }
 }
 #endif
@@ -150,11 +157,14 @@ int EMSCRIPTEN_KEEPALIVE openWebConnection() {
 #ifdef __EMSCRIPTEN__
 extern "C" {
 int  EMSCRIPTEN_KEEPALIVE wasm_main() {
-      setDefaultOptions();
-      newWorld();
-      openWebConnection();
-      scprintf("SuperCollider 3 server ready. Started via wasm_main\n");
-      return 0;
+    setlinebuf(stdout);
+    EventLoop::setup();
+    setDefaultOptions();
+    newWorld();
+    openWebConnection();
+    scprintf("SuperCollider 3 server ready. Started via wasm_main\n");
+    emscripten_set_main_loop(em_loop, 0, 0);
+    return 0;
 }
 }
 #endif
@@ -260,11 +270,7 @@ void Usage() {
     }                                                                                                                  \
     i += n;
 
-#ifdef __EMSCRIPTEN__
-void em_loop() {
-    // scprintf("<loop>\n");
-}
-#endif
+
 
 int scsynth_main(int argc, char** argv) {
     startServerBootDelayWarningTimer();
